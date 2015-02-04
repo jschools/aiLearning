@@ -7,15 +7,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.schoovello.ai.treesearch.Heuristic;
+import com.schoovello.ai.treesearch.HeuristicProvider;
 import com.schoovello.ai.treesearch.Problem;
 import com.schoovello.ai.treesearch.SearchNode;
 import com.schoovello.ai.treesearch.cannibals.CmState.Side;
 
-public class CannibalsMissionariesProblem implements Problem<CmState, CmAction> {
+public class CannibalsMissionariesProblem implements Problem<CmState, CmAction>, HeuristicProvider<CmState> {
 
-	private static final int INIT_C = 10;
-	private static final int INIT_M = 10;
-	private static final int BOAT_CAPACITY = 4;
+	private static final int INIT_C = 49;
+	private static final int INIT_M = 50;
+	private static final int BOAT_CAPACITY = 2;
 
 	@Override
 	public CmState getInitialState() {
@@ -84,7 +86,19 @@ public class CannibalsMissionariesProblem implements Problem<CmState, CmAction> 
 		return expansion;
 	}
 
+	@Override
+	public Heuristic<CmState> generateHeuristic() {
+		return new CmHeuristic();
+	}
+
 	private static boolean inRangeInclusive(int n, int min, int max) {
 		return n >= min && n <= max;
+	}
+
+	private class CmHeuristic implements Heuristic<CmState> {
+		@Override
+		public double getDistanceToGoal(CmState state) {
+			return state.cannibalsLeft + state.cannibalsRight;
+		}
 	}
 }
