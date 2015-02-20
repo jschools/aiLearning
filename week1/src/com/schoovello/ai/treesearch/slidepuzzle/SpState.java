@@ -8,9 +8,6 @@ public class SpState implements State {
 
 	public static final int EMPTY = -1;
 
-	public static final int PUZZLE_COLS = 3;
-	public static final int PUZZLE_ROWS = 3;
-
 	public final int[][] puzzle;
 	public final int emptyR;
 	public final int emptyC;
@@ -24,8 +21,8 @@ public class SpState implements State {
 	@Override
 	public String describe() {
 		StringBuilder builder = new StringBuilder();
-		for (int r = 0; r < PUZZLE_ROWS; r++) {
-			for (int c = 0; c < PUZZLE_COLS; c++) {
+		for (int r = 0; r < SlidePuzzleProblem.PUZZLE_ROWS; r++) {
+			for (int c = 0; c < SlidePuzzleProblem.PUZZLE_COLS; c++) {
 				final int value = puzzle[r][c];
 
 				String cell = value == EMPTY ? "  " : String.format("%2d", Integer.valueOf(value));
@@ -38,9 +35,9 @@ public class SpState implements State {
 	}
 
 	public int[][] copyPuzzle() {
-		int[][] result = new int[PUZZLE_ROWS][PUZZLE_COLS];
-		for (int r = 0; r < PUZZLE_ROWS; r++) {
-			System.arraycopy(puzzle[r], 0, result[r], 0, PUZZLE_COLS);
+		int[][] result = new int[SlidePuzzleProblem.PUZZLE_ROWS][SlidePuzzleProblem.PUZZLE_COLS];
+		for (int r = 0; r < SlidePuzzleProblem.PUZZLE_ROWS; r++) {
+			System.arraycopy(puzzle[r], 0, result[r], 0, SlidePuzzleProblem.PUZZLE_COLS);
 		}
 
 		return result;

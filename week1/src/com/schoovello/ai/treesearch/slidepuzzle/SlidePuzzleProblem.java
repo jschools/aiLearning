@@ -1,13 +1,13 @@
 package com.schoovello.ai.treesearch.slidepuzzle;
 
 import static com.schoovello.ai.treesearch.slidepuzzle.SpState.EMPTY;
-import static com.schoovello.ai.treesearch.slidepuzzle.SpState.PUZZLE_COLS;
-import static com.schoovello.ai.treesearch.slidepuzzle.SpState.PUZZLE_ROWS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import com.schoovello.ai.treesearch.Heuristic;
 import com.schoovello.ai.treesearch.HeuristicProvider;
@@ -17,24 +17,57 @@ import com.schoovello.ai.treesearch.slidepuzzle.SpAction.Direction;
 
 public class SlidePuzzleProblem implements Problem<SpState, SpAction>, HeuristicProvider<SpState> {
 
+	public static final int PUZZLE_COLS = 4;
+	public static final int PUZZLE_ROWS = 4;
+	public static final int[] PUZZLE_INIT = generateRandomPuzzle();
+
+	// // { 10,
+	// 5, 8, 4,
+	// 7, 1, 18,
+	// EMPTY, 3
+	// };
+
+	private static int[] generateRandomPuzzle() {
+		// Seeds that yield solutions:
+		// 3x3 - 1234567
+		// 3x4 - 1234567
+		// 4x3 - 1234567
+		final int seed = 1234567;
+		final Random rand = new Random(seed);
+
+		final int tileCount = PUZZLE_COLS * PUZZLE_ROWS;
+		final List<Integer> list = new ArrayList<>(tileCount);
+		list.add(Integer.valueOf(EMPTY));
+		for (int i = 0; i < tileCount - 1; i++) {
+			list.add(Integer.valueOf(i));
+		}
+
+		Collections.shuffle(list, rand);
+
+		final int[] puzzleRaw = new int[tileCount];
+		for (int i = 0; i < tileCount; i++) {
+			puzzleRaw[i] = list.get(i).intValue();
+		}
+
+		return puzzleRaw;
+	}
+
 	@Override
 	public SpState getInitialState() {
-		// @formatter:off
-		int[][] puzzle = new int[][] {
-				{10, 5, 8},
-				{4, 7, 1},
-				{18, EMPTY, 3}
-		};
-		// @formatter:on
+		int[][] puzzle = new int[PUZZLE_ROWS][PUZZLE_COLS];
 
 		int emptyR = 0;
 		int emptyC = 0;
-		for (int r = 0; r < SpState.PUZZLE_ROWS; r++) {
-			for (int c = 0; c < SpState.PUZZLE_COLS; c++) {
-				if (puzzle[r][c] == EMPTY) {
+		for (int r = 0; r < PUZZLE_ROWS; r++) {
+			for (int c = 0; c < PUZZLE_COLS; c++) {
+				final int readIdx = r * PUZZLE_COLS + c;
+				final int value = PUZZLE_INIT[readIdx];
+
+				puzzle[r][c] = value;
+
+				if (value == EMPTY) {
 					emptyR = r;
 					emptyC = c;
-					break;
 				}
 			}
 		}
@@ -55,8 +88,8 @@ public class SlidePuzzleProblem implements Problem<SpState, SpAction>, Heuristic
 		final int emptyC = 0;
 
 		int lastValue = -1;
-		for (int r = 0; r < SpState.PUZZLE_ROWS; r++) {
-			for (int c = 0; c < SpState.PUZZLE_COLS; c++) {
+		for (int r = 0; r < PUZZLE_ROWS; r++) {
+			for (int c = 0; c < PUZZLE_COLS; c++) {
 				final int value = puzzle[r][c];
 
 				if (emptyR == r && emptyC == c) {
@@ -166,7 +199,7 @@ public class SlidePuzzleProblem implements Problem<SpState, SpAction>, Heuristic
 				}
 			}
 
-			return distance;
+			return distance * 6.0;
 		}
 	}
 
