@@ -1,15 +1,15 @@
 package com.schoovello.ai.treesearch.rubiks;
 
+import com.schoovello.ai.treesearch.DfsSingleVisitFringe;
+import com.schoovello.ai.treesearch.ProblemRunner;
+import com.schoovello.ai.treesearch.TreeSearch;
+
 
 public class Rubiks {
 	public static void main(String[] args) {
-		RubState s = new RubState();
-		System.out.println(s.describe());
+		RubiksProblem problem = new RubiksProblem();
+		TreeSearch<RubState, RubAction> algorithm = new TreeSearch<>(problem, new DfsSingleVisitFringe<RubState, RubAction>());
 
-		// SlidePuzzleProblem problem = new SlidePuzzleProblem();
-		// TreeSearch<SpState, SpAction> algorithm = new TreeSearch<>(problem, new AStarFringe<SpState,
-		// SpAction>(problem));
-		//
-		// ProblemRunner.runProblem(problem, algorithm);
+		ProblemRunner.runProblem(problem, algorithm);
 	}
 }

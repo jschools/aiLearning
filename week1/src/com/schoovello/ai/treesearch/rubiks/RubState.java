@@ -133,26 +133,45 @@ public class RubState implements State {
 	}
 
 	public static char getColorChar(byte color) {
-		return (char) 0x2588;
+		switch (color) {
+		case WHITE:
+			return 'W';
+		case RED:
+			return 'R';
+		case GREEN:
+			return 'G';
+		case BLUE:
+			return 'B';
+		case YELLOW:
+			return 'Y';
+		case ORANGE:
+			return 'O';
+		default:
+			return '?';
+		}
+
+		// return (char) 0x2588;
 	}
 
 	public static String getAnsiColor(byte color) {
-		switch (color) {
-		case WHITE:
-			return AnsiColorString.GRAY;
-		case RED:
-			return AnsiColorString.RED;
-		case GREEN:
-			return AnsiColorString.GREEN;
-		case BLUE:
-			return AnsiColorString.BLUE;
-		case YELLOW:
-			return AnsiColorString.YELLOW;
-		case ORANGE:
-			return AnsiColorString.ORANGE;
-		default:
-			return AnsiColorString.RESET;
-		}
+		return "";
+
+		// switch (color) {
+		// case WHITE:
+		// return AnsiColorString.GRAY;
+		// case RED:
+		// return AnsiColorString.RED;
+		// case GREEN:
+		// return AnsiColorString.GREEN;
+		// case BLUE:
+		// return AnsiColorString.BLUE;
+		// case YELLOW:
+		// return AnsiColorString.YELLOW;
+		// case ORANGE:
+		// return AnsiColorString.ORANGE;
+		// default:
+		// return AnsiColorString.RESET;
+		// }
 	}
 
 	public static interface Color {

@@ -21,7 +21,12 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 
 	@Override
 	public RubState getInitialState() {
-		return null;
+		RubState s = new RubState();
+
+		byte[][] faces = s.getFaces();
+		rotateFace(faces, Face.UP, true);
+
+		return s;
 	}
 
 	@Override
@@ -31,7 +36,16 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 
 	@Override
 	public boolean isGoal(RubState state) {
-		// TODO
+		final byte[][] faces = state.getFaces();
+		for (Face f : Face.values()) {
+			final byte[] faceColors = faces[f.ordinal()];
+			final byte color = faceColors[0];
+			for (int i = 1; i < faceColors.length; i++) {
+				if (faceColors[i] != color) {
+					return false;
+				}
+			}
+		}
 		return true;
 	}
 
@@ -44,14 +58,18 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 	public Collection<SearchNode<RubState, RubAction>> expand(SearchNode<RubState, RubAction> expansionNode) {
 		final List<SearchNode<RubState, RubAction>> expansion = new ArrayList<>();
 		final RubState expansionState = expansionNode.state;
-		// for (Direction dir : RubAction.Direction.values()) {
-		// RubAction action = new RubAction(dir, expansionState.emptyR, expansionState.emptyC);
-		// RubState newState = apply(expansionNode.state, action);
-		//
-		// if (newState != null) {
-		// expansion.add(new SearchNode<>(newState, expansionNode, action, getCost(expansionState, action)));
-		// }
-		// }
+
+		for (Face f : Face.values()) {
+			RubAction cwAction = new RubAction(f, true);
+			RubState cwState = apply(expansionState, cwAction);
+			SearchNode<RubState, RubAction> cw = new SearchNode<>(cwState, expansionNode, cwAction, getCost(expansionState, cwAction));
+			RubAction ccwAction = new RubAction(f, false);
+			RubState ccwState = apply(expansionState, ccwAction);
+			SearchNode<RubState, RubAction> ccw = new SearchNode<>(ccwState, expansionNode, ccwAction, getCost(expansionState, ccwAction));
+
+			expansion.add(cw);
+			expansion.add(ccw);
+		}
 
 		return expansion;
 	}
