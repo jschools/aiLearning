@@ -324,9 +324,9 @@ public class RubState implements State {
 			case BACK:
 				return LEFT;
 			case LEFT:
-				return BACK;
-			case RIGHT:
 				return FRONT;
+			case RIGHT:
+				return BACK;
 			case UP:
 				return RIGHT;
 			case DOWN:

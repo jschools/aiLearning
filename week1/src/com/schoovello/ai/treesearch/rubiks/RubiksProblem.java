@@ -20,21 +20,30 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 		}
 	};
 
+	private Object mInitialStateLock = new Object();
+	private static RubState mInitialState;
+
 	@Override
 	public RubState getInitialState() {
-		RubState s = new RubState();
+		synchronized (mInitialStateLock) {
+			if (mInitialState == null) {
+				RubState s = new RubState();
 
-		byte[][] faces = s.getFaces();
+				byte[][] faces = s.getFaces();
 
-		Random rand = new Random(123);
-		final Face[] allFaces = Face.VALUES;
-		final int faceCount = allFaces.length;
+				Random rand = new Random(123);
+				final Face[] allFaces = Face.VALUES;
+				final int faceCount = allFaces.length;
 
-		for (int i = 0; i < 3; i++) {
-			rotateFace(faces, allFaces[rand.nextInt(faceCount)], rand.nextBoolean());
+				for (int i = 0; i < 5; i++) {
+					rotateFace(faces, allFaces[rand.nextInt(faceCount)], rand.nextBoolean());
+				}
+
+				mInitialState = s;
+			}
+
+			return mInitialState;
 		}
-
-		return s;
 	}
 
 	@Override
