@@ -7,7 +7,9 @@ import static com.schoovello.ai.treesearch.rubiks.RubState.Color.RED;
 import static com.schoovello.ai.treesearch.rubiks.RubState.Color.WHITE;
 import static com.schoovello.ai.treesearch.rubiks.RubState.Color.YELLOW;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.schoovello.ai.treesearch.State;
 import com.schoovello.util.AnsiColorString;
@@ -15,13 +17,20 @@ import com.schoovello.util.AnsiColorString;
 public class RubState implements State {
 
 	public static final int FACE_SIZE = 9;
-	public static final int FACE_COUNT = Face.values().length;
+	public static final int FACE_COUNT = Face.VALUES.length;
+
+	private static ThreadLocal<FacesPool> FACES_POOL = new ThreadLocal<FacesPool>() {
+		@Override
+		protected FacesPool initialValue() {
+			return new FacesPool();
+		}
+	};
 
 	private byte[][] mFaces;
 
 	public RubState() {
-		mFaces = new byte[FACE_COUNT][FACE_SIZE];
-		for (Face f : Face.values()) {
+		mFaces = FACES_POOL.get().obtain();
+		for (Face f : Face.VALUES) {
 			Arrays.fill(mFaces[f.ordinal()], f.getInitialColor());
 		}
 	}
@@ -40,30 +49,30 @@ public class RubState implements State {
 
 		// @formatter:off
 		//
-		//	    FFF
-		//      FFF
-		//      FFF
-		//	LLL DDD RRR UUU
-		//  LLL DDD RRR UUU
-		//	LLL DDD RRR UUU
-		//	    BBB
-		//	    BBB
-		//	    BBB
+		//  	UUU
+		//      UUU
+		//      UUU
+		//  LLL FFF RRR BBB
+		//  LLL FFF RRR BBB
+		//  LLL FFF RRR BBB
+		//  	DDD
+		//  	DDD
+		//  	DDD
 		//
 		// @formatter:on
 
-		// FRONT
+		// UP
 		for (int row = 0; row < 3; row++) {
 			builder.append("    ");
 			for (int col = 0; col < 3; col++) {
-				byte color = mFaces[Face.FRONT.ordinal()][row * 3 + col];
+				byte color = mFaces[Face.UP.ordinal()][row * 3 + col];
 				describeTile(builder, color);
 			}
 			builder.append('\n');
 		}
 
-		// LEFT DOWN RIGHT UP
-		final Face[] faces = { Face.LEFT, Face.DOWN, Face.RIGHT, Face.UP };
+		// LEFT FRONT RIGHT BACK
+		final Face[] faces = { Face.LEFT, Face.FRONT, Face.RIGHT, Face.BACK };
 		for (int row = 0; row < 3; row++) {
 			for (Face face : faces) {
 				for (int faceCol = 0; faceCol < 3; faceCol++) {
@@ -76,11 +85,11 @@ public class RubState implements State {
 			builder.append('\n');
 		}
 
-		// BACK
+		// DOWN
 		for (int row = 0; row < 3; row++) {
 			builder.append("    ");
 			for (int col = 0; col < 3; col++) {
-				byte color = mFaces[Face.BACK.ordinal()][row * 3 + col];
+				byte color = mFaces[Face.DOWN.ordinal()][row * 3 + col];
 				describeTile(builder, color);
 			}
 			builder.append('\n');
@@ -117,14 +126,24 @@ public class RubState implements State {
 		return true;
 	}
 
+	@Override
+	protected void finalize() throws Throwable {
+		FACES_POOL.get().recycle(mFaces);
+	}
+
 	public static byte[][] copyPuzzle(RubState state) {
-		byte[][] result = new byte[FACE_COUNT][FACE_SIZE];
+		byte[][] faces = state.getFaces();
+		byte[][] result = allocateFaces();
 		for (int f = 0; f < FACE_COUNT; f++) {
 			for (int i = 0; i < FACE_SIZE; i++) {
-				result[f][i] = result[f][i];
+				result[f][i] = faces[f][i];
 			}
 		}
 		return result;
+	}
+
+	private static byte[][] allocateFaces() {
+		return FACES_POOL.get().obtain();
 	}
 
 	public static void describeTile(StringBuilder builder, byte color) {
@@ -191,6 +210,8 @@ public class RubState implements State {
 		UP,
 		DOWN,
 		;
+
+		public static final Face[] VALUES = values();
 
 		private static final int[] EDGE_TOP = { 2, 1, 0 };
 		private static final int[] EDGE_LEFT = { 0, 3, 6 };
@@ -371,6 +392,37 @@ public class RubState implements State {
 				return null;
 			}
 		}
+	}
 
+	private static class FacesPool {
+		private static final int INITIAL_SIZE = 500_000;
+
+		private List<byte[][]> mPool;
+
+		public FacesPool() {
+			mPool = new ArrayList<>(INITIAL_SIZE);
+			grow(INITIAL_SIZE);
+		}
+
+		private void grow(int size) {
+			for (int i = 0; i < size; i++) {
+				mPool.add(new byte[FACE_COUNT][FACE_SIZE]);
+			}
+		}
+
+		public byte[][] obtain() {
+			if (mPool.isEmpty()) {
+				grow(INITIAL_SIZE);
+			}
+
+			final int idx = mPool.size() - 1;
+			byte[][] obj = mPool.get(idx);
+			mPool.remove(idx);
+			return obj;
+		}
+
+		public void recycle(byte[][] obj) {
+			mPool.add(obj);
+		}
 	}
 }

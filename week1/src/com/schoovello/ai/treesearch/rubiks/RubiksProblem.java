@@ -3,6 +3,7 @@ package com.schoovello.ai.treesearch.rubiks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 import com.schoovello.ai.treesearch.Heuristic;
 import com.schoovello.ai.treesearch.HeuristicProvider;
@@ -24,7 +25,14 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 		RubState s = new RubState();
 
 		byte[][] faces = s.getFaces();
-		rotateFace(faces, Face.UP, true);
+
+		Random rand = new Random(123);
+		final Face[] allFaces = Face.VALUES;
+		final int faceCount = allFaces.length;
+
+		for (int i = 0; i < 3; i++) {
+			rotateFace(faces, allFaces[rand.nextInt(faceCount)], rand.nextBoolean());
+		}
 
 		return s;
 	}
@@ -37,9 +45,9 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 	@Override
 	public boolean isGoal(RubState state) {
 		final byte[][] faces = state.getFaces();
-		for (Face f : Face.values()) {
+		for (Face f : Face.VALUES) {
 			final byte[] faceColors = faces[f.ordinal()];
-			final byte color = faceColors[0];
+			final byte color = f.getInitialColor();
 			for (int i = 1; i < faceColors.length; i++) {
 				if (faceColors[i] != color) {
 					return false;
@@ -59,7 +67,7 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 		final List<SearchNode<RubState, RubAction>> expansion = new ArrayList<>();
 		final RubState expansionState = expansionNode.state;
 
-		for (Face f : Face.values()) {
+		for (Face f : Face.VALUES) {
 			RubAction cwAction = new RubAction(f, true);
 			RubState cwState = apply(expansionState, cwAction);
 			SearchNode<RubState, RubAction> cw = new SearchNode<>(cwState, expansionNode, cwAction, getCost(expansionState, cwAction));
@@ -167,8 +175,20 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 
 		@Override
 		public double getDistanceToGoal(RubState state) {
-			// TODO
-			return 1;
+			double distance = 0;
+
+			final byte[][] faces = state.getFaces();
+			for (Face f : Face.VALUES) {
+				final byte[] face = faces[f.ordinal()];
+				final byte faceColor = f.getInitialColor();
+				for (int i = 0; i < 9; i++) {
+					if (face[i] != faceColor) {
+						distance += 3; // a decent guess?
+					}
+				}
+			}
+
+			return distance;
 		}
 	}
 
