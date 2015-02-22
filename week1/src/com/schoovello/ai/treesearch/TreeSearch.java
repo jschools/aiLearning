@@ -24,6 +24,11 @@ public class TreeSearch<S extends State, A extends Action> {
 			mIterations++;
 
 			SearchNode<S, A> n = mFringe.select();
+			if (mIterations % 50_000 == 0) {
+				System.out.println("After " + mIterations + " iterations:");
+				System.out.println(n.state.describe());
+			}
+
 			if (mProblem.isGoal(n.state)) {
 				return pathTo(n);
 			}

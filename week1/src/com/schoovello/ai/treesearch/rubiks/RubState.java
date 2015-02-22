@@ -395,7 +395,7 @@ public class RubState implements State {
 	}
 
 	private static class FacesPool {
-		private static final int INITIAL_SIZE = 500_000;
+		private static final int INITIAL_SIZE = 300_000 * 3;
 
 		private List<byte[][]> mPool;
 

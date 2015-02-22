@@ -35,7 +35,7 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 				final Face[] allFaces = Face.VALUES;
 				final int faceCount = allFaces.length;
 
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 50; i++) {
 					rotateFace(faces, allFaces[rand.nextInt(faceCount)], rand.nextBoolean());
 				}
 
@@ -192,12 +192,12 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 				final byte faceColor = f.getInitialColor();
 				for (int i = 0; i < 9; i++) {
 					if (face[i] != faceColor) {
-						distance += 3; // a decent guess?
+						distance += 1; // a decent guess?
 					}
 				}
 			}
 
-			return distance;
+			return distance * distance;
 		}
 	}
 
