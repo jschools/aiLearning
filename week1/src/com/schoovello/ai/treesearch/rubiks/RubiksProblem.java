@@ -35,7 +35,7 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 				final Face[] allFaces = Face.VALUES;
 				final int faceCount = allFaces.length;
 
-				for (int i = 0; i < 50; i++) {
+				for (int i = 0; i < 100; i++) {
 					rotateFace(faces, allFaces[rand.nextInt(faceCount)], rand.nextBoolean());
 				}
 
@@ -223,7 +223,7 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 
 			threeInARowScore = 108 - threeInARowScore;
 
-			return (threeInARowScore * threeInARowScore + nonMatchingColorFaces) / 100d;
+			return (threeInARowScore * threeInARowScore * threeInARowScore + nonMatchingColorFaces * nonMatchingColorFaces) / 8000d;
 		}
 	}
 
