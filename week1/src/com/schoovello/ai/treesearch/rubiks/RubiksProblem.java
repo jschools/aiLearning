@@ -31,7 +31,7 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 
 				byte[][] faces = s.getFaces();
 
-				Random rand = new Random(123);
+				Random rand = new Random();
 				final Face[] allFaces = Face.VALUES;
 				final int faceCount = allFaces.length;
 
@@ -184,7 +184,8 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 
 		@Override
 		public double getDistanceToGoal(RubState state) {
-			double distance = 0;
+			int nonMatchingColorFaces = 0;
+			int threeInARowScore = 0;
 
 			final byte[][] faces = state.getFaces();
 			for (Face f : Face.VALUES) {
@@ -192,12 +193,37 @@ public class RubiksProblem implements Problem<RubState, RubAction>, HeuristicPro
 				final byte faceColor = f.getInitialColor();
 				for (int i = 0; i < 9; i++) {
 					if (face[i] != faceColor) {
-						distance += 1; // a decent guess?
+						nonMatchingColorFaces += 1;
+					}
+				}
+
+				for (int rowStart = 0; rowStart <= 6; rowStart += 3) {
+					if (face[rowStart] == face[rowStart + 1]) {
+						threeInARowScore++;
+					}
+					if (face[rowStart] == face[rowStart + 2]) {
+						threeInARowScore++;
+					}
+					if (face[rowStart + 1] == face[rowStart + 2]) {
+						threeInARowScore++;
+					}
+				}
+				for (int col = 0; col < 3; col++) {
+					if (face[col] == face[col + 3]) {
+						threeInARowScore++;
+					}
+					if (face[col] == face[col + 6]) {
+						threeInARowScore++;
+					}
+					if (face[col + 3] == face[col + 6]) {
+						threeInARowScore++;
 					}
 				}
 			}
 
-			return distance * distance;
+			threeInARowScore = 108 - threeInARowScore;
+
+			return (threeInARowScore * threeInARowScore + nonMatchingColorFaces) / 100d;
 		}
 	}
 

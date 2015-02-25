@@ -37,8 +37,7 @@ public class AStarFringe<S extends State, A extends Action> extends SingleVisitF
 
 		@Override
 		public int compareTo(CostWrapper o) {
-			double diff = evaluation - o.evaluation;
-			return diff < 0 ? -1 : (diff > 0 ? 1 : 0);
+			return evaluation < o.evaluation ? -1 : (evaluation > o.evaluation ? 1 : 0);
 		}
 	}
 

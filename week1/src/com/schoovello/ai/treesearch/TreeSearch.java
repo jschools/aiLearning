@@ -28,6 +28,9 @@ public class TreeSearch<S extends State, A extends Action> {
 				System.out.println("After " + mIterations + " iterations:");
 				System.out.println(n.state.describe());
 			}
+			if (mIterations >= 300_000) {
+				throw new RuntimeException("gave up after " + mIterations + " iterations");
+			}
 
 			if (mProblem.isGoal(n.state)) {
 				return pathTo(n);
